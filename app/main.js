@@ -1,6 +1,8 @@
 // Modules to control application life and create native browser window
 const {app, BrowserWindow, dialog,Menu, ipcMain} = require('electron');
 const path = require('path');
+const { exec } = require('child_process');
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -111,6 +113,10 @@ ipcMain.on('asynchronous-message', (event, arg) => {
     console.log(arg) // ping
   
     // 送信元のチャンネル('asynchronous-reply')に返信する
-    event.sender.send('asynchronous-reply', 'pong')
-  })
+    exec('cd app & test.bat', (error,stdout,stderr) => {
+        event.sender.send('asynchronous-reply', stdout);
+        console.log(stdout);
+    });
+});
+
   
