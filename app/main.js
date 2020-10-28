@@ -60,12 +60,21 @@ function initWindowMenu(){
             ]
         },
         {
-            label: 'esp32',
+            label: '検査',
             submenu: [
                 {
-                    label: '書き込み',
+                    label: '検査開始',
                     click (){
-                        subWindow = new BrowserWindow({width: 420, height: 280});
+                        subWindow = new BrowserWindow({
+                            width: 420, 
+                            height: 280,
+                            webPreferences: {
+                                nodeIntegration: false,
+                                contextIsolation: true,
+                                preload: path.join(__dirname ,'preload.js')
+                            }
+                        });
+                        subWindow.webContents.openDevTools();
                         subWindow.loadFile('flash.html');
                     }
                 },
@@ -108,15 +117,13 @@ app.on('activate', function () {
 });
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-ipcMain.on('asynchronous-message', (event, arg) => {
+ipcMain.on('asynchronous-message', (event) => {
     // 受信したコマンドの引数を表示する
-    console.log(arg) // ping
+    //console.log(arg) // ping
   
     // 送信元のチャンネル('asynchronous-reply')に返信する
     exec('cd app & test.bat', (error,stdout,stderr) => {
         event.sender.send('asynchronous-reply', stdout);
-        console.log(stdout);
+        //console.log(stdout);
     });
 });
-
-  
