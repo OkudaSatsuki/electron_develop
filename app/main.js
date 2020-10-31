@@ -18,11 +18,11 @@ function createWindow () {
             preload: path.join(__dirname ,'preload.js')
         }
     });
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
     // and load the index.html of the app.
     mainWindow.loadFile('index.html');
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
         // Dereference the window object, usually you would store windows
@@ -32,15 +32,15 @@ function createWindow () {
         subWindow = null;
     });
     mainWindow.webContents.on('will-prevent-unload', (event) => {
-        const choice = dialog.showMessageBox(mainWindow, {
+        const choice = dialog.showMessageBoxSync(mainWindow, {
             type: 'question',
             buttons: ['終了する', '終了しない'],
             title: '本当にスモウルビーを終了しますか？',
             message: '作成中のプログラムは消えてしまいます。\n' +
                 'プログラムを保存する場合は、「終了しない」を選んでから、' +
                 'メニュー[ファイル]-[コンピュータに保存する]を選んで保存してください。',
-            defaultId: 0,
-            cancelId: 1
+            //defaultId: 0,
+            //cancelId: -1
         });
         const leave = (choice === 0);
         if (leave) {
@@ -59,7 +59,7 @@ function initWindowMenu(){
                 { role: 'toggledevtools' }
             ]
         },
-        {
+        /*{
             label: '検査',
             submenu: [
                 {
@@ -77,16 +77,9 @@ function initWindowMenu(){
                         subWindow.webContents.openDevTools();
                         subWindow.loadFile('flash.html');
                     }
-                },
-                {
-                    label: 'クリーン',
-                    click (){
-                        subWindow = new BrowserWindow({width: 420, height: 280});
-                        subWindow.loadFile('clean.html');
-                    }
                 }
             ]
-        }
+        }*/
     ]
  
     const menu = Menu.buildFromTemplate(template)
@@ -117,13 +110,32 @@ app.on('activate', function () {
 });
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-ipcMain.on('asynchronous-message', (event) => {
-    // 受信したコマンドの引数を表示する
-    //console.log(arg) // ping
-  
-    // 送信元のチャンネル('asynchronous-reply')に返信する
-    exec('cd app & test.bat', (error,stdout,stderr) => {
-        event.sender.send('asynchronous-reply', stdout);
-        //console.log(stdout);
-    });
+
+//greenflag-clickチャンネルがメッセージを受信したら
+ipcMain.on('greenflag-click', (event,arg) => {
+    if (arg == 'Go') {
+        subWindow = new BrowserWindow({
+            width: 420, 
+            height: 280,
+            webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+                preload: path.join(__dirname ,'preload.js')
+            }
+        });
+        subWindow.loadFile('exec-result.html')
+            .then(() => {
+                //コマンドcd app & test.batの実行
+                exec('cd app & test.bat', (error,stdout,stderr) => {
+                    if(stderr){
+                        // render.jsのexec-finishチャンネルにsend
+                        subWindow.webContents.send('exec-finish', stderr + "<<エラーです>>");
+                    }
+                    else {
+                        // render.jsのexec-finishチャンネルにsend
+                        subWindow.webContents.send('exec-finish', stdout + "<<実行完了>>");
+                    }
+                });
+            });
+    }
 });

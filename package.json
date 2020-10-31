@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "electron-packager app SmT-2020 --platform=win32 --arch=x64 --electron-version=7.1.14"
   },
   "keywords": [],
   "author": "",
