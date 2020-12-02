@@ -2,6 +2,12 @@
 const {app, BrowserWindow, dialog,Menu, ipcMain} = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
+const fs = require('fs');
+require('date-utils');
+let dt;
+let now;
+let time;
+let log;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -130,12 +136,22 @@ ipcMain.on('greenflag-click', (event,arg) => {
                     if(stderr){
                         // render.jsのexec-finishチャンネルにsend
                         subWindow.webContents.send('exec-finish', stderr + "<br><<エラーです>>");
+                        log = stderr;
                     }
                     else {
                         // render.jsのexec-finishチャンネルにsend
                         subWindow.webContents.send('exec-finish', stdout + "<br><<実行完了>>");
+                        log = stdout;
                     }
-                });
+
+                    //dt = new Date();
+                    now = new Date().toFormat('YYYYMMDD');
+                    time = new Date().toFormat('YYYY MMM DD DDD HH24:MI:SS');
+                    fs.writeFile(`testlog_${now}.txt`, time + '\n' + log, (err, stdout) => {
+                        if(err) console.log(err);
+                        else console.log('write end');
+                    });
+                })
             });
     }
 });
