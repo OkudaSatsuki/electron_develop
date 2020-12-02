@@ -115,7 +115,7 @@ app.on('activate', function () {
 ipcMain.on('greenflag-click', (event,arg) => {
     if (arg == 'Go') {
         subWindow = new BrowserWindow({
-            width: 420, 
+            width: 520, 
             height: 280,
             webPreferences: {
                 nodeIntegration: false,
@@ -129,11 +129,11 @@ ipcMain.on('greenflag-click', (event,arg) => {
                 exec('cd app & test.bat', (error,stdout,stderr) => {
                     if(stderr){
                         // render.jsのexec-finishチャンネルにsend
-                        subWindow.webContents.send('exec-finish', stderr + "<<エラーです>>");
+                        subWindow.webContents.send('exec-finish', stderr + "<br><<エラーです>>");
                     }
                     else {
                         // render.jsのexec-finishチャンネルにsend
-                        subWindow.webContents.send('exec-finish', stdout + "<<実行完了>>");
+                        subWindow.webContents.send('exec-finish', stdout + "<br><<実行完了>>");
                     }
                 });
             });
