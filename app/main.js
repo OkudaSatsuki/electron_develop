@@ -132,8 +132,8 @@ ipcMain.on('greenflag-click', (event,arg) => {
         subWindow.loadFile('exec-result.html')
             .then(() => {
                 //コマンドcd app & test.batの実行
-                exec('cd app & test.bat', (error,stdout,stderr) => {
-                    if(stderr){
+                exec('cd app/ruby & ruby test.rb', (error,stdout,stderr) => {
+                    if(stderr) {
                         // render.jsのexec-finishチャンネルにsend
                         subWindow.webContents.send('exec-finish', stderr + "<br><<エラーです>>");
                         log = stderr;
@@ -147,8 +147,8 @@ ipcMain.on('greenflag-click', (event,arg) => {
                     //dt = new Date();
                     now = new Date().toFormat('YYYYMMDD');
                     time = new Date().toFormat('YYYY MMM DD DDD HH24:MI:SS');
-                    fs.writeFile(`testlog_${now}.txt`, time + '\n' + log, (err, stdout) => {
-                        if(err) console.log(err);
+                    fs.appendFile(`${now}_testlog.txt`, time + '\n' + log + '\n', (err, stdout) => {
+                        if(err) console.log(err);//ファイル書き込みに関するエラー
                         else console.log('write end');
                     });
                 })
