@@ -3,8 +3,6 @@ const {app, BrowserWindow, dialog,Menu, ipcMain} = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
 const fs = require('fs');
-require('date-utils');
-let dt;
 let now;
 let time;
 let log;
@@ -144,10 +142,12 @@ ipcMain.on('greenflag-click', (event,arg) => {
                         log = stdout;
                     }
 
-                    //dt = new Date();
-                    now = new Date().toFormat('YYYYMMDD');
-                    time = new Date().toFormat('YYYY MMM DD DDD HH24:MI:SS');
-                    fs.appendFile(`${now}_testlog.txt`, time + '\n' + log + '\n', (err, stdout) => {
+                    if(!fs.existsSync('/log')) {
+                        fs.mkdirSync('log');
+                    }
+                    time = new Date();
+                    now = String(time.getFullYear()) + String(time.getMonth()+1) + String(time.getDate());
+                    fs.appendFile(`log/${now}_testlog.txt`, time + '\n' + log + '\n', (err, stdout) => {
                         if(err) console.log(err);//ファイル書き込みに関するエラー
                         else console.log('write end');
                     });
