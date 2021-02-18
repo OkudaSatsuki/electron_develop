@@ -26,7 +26,7 @@ function createWindow () {
     // and load the index.html of the app.
     mainWindow.loadFile('index.html');
     // Open the DevTools.
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
         // Dereference the window object, usually you would store windows
@@ -43,8 +43,8 @@ function createWindow () {
             message: '作成中のプログラムは消えてしまいます。\n' +
                 'プログラムを保存する場合は、「終了しない」を選んでから、' +
                 'メニュー[ファイル]-[コンピュータに保存する]を選んで保存してください。',
-            //defaultId: 0,
-            //cancelId: -1
+            defaultId: 0,
+            cancelId: -1
         });
         const leave = (choice === 0);
         if (leave) {
@@ -133,16 +133,16 @@ ipcMain.on('greenflag-click', (event,arg) => {
                 exec('cd app/ruby & ruby test.rb', (error,stdout,stderr) => {
                     if(stderr) {
                         // render.jsのexec-finishチャンネルにsend
-                        subWindow.webContents.send('exec-finish', stderr + "<br><<エラーです>>");
-                        log = stderr;
+                        subWindow.webContents.send('exec-finish', stderr + stdout + "<br><<実行終了>>");
+                        log = stderr + stdout;
                     }
                     else {
                         // render.jsのexec-finishチャンネルにsend
-                        subWindow.webContents.send('exec-finish', stdout + "<br><<実行完了>>");
+                        subWindow.webContents.send('exec-finish', stdout + "<br><<実行終了>>");
                         log = stdout;
                     }
 
-                    if(!fs.existsSync('/log')) {
+                    if(!fs.existsSync('./log')) {
                         fs.mkdirSync('log');
                     }
                     time = new Date();
